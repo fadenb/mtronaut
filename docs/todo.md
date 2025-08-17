@@ -185,7 +185,7 @@ When resuming work on this project, review the current status below and pick up 
 - Verify all tools work properly in PTY environment
 
 #### 16. Implement error handling and connection recovery
-**Status:** 🔄 In Progress
+**Status:** ✅ Completed
 **Description:** Add robust error handling throughout the application.
 **Tasks:**
 - Handle process execution errors
@@ -195,7 +195,7 @@ When resuming work on this project, review the current status below and pick up 
 - Test error scenarios
 
 #### 17. Add terminal size communication between frontend and backend
-**Status:** ⏳ Pending  
+**Status:** ✅ Completed
 **Description:** Implement dynamic terminal sizing to match the browser terminal display.  
 **Tasks:**
 - Detect terminal size changes in frontend
