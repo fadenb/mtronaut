@@ -19,7 +19,8 @@ document.addEventListener('DOMContentLoaded', () => {
             handleWebSocketMessage,
             handleWebSocketOpen,
             handleWebSocketClose,
-            handleWebSocketError
+            handleWebSocketError,
+            handleWebSocketReconnectAttempt // New callback
         );
         terminalManager = new TerminalManager('terminal-container', websocketClient);
     }
@@ -116,12 +117,16 @@ document.addEventListener('DOMContentLoaded', () => {
         startButton.disabled = false;
     }
 
-    function handleWebSocketClose(event) {
+    function handleWebSocketClose(event, permanent = false) {
         console.log('WebSocket connection closed.', event);
         startButton.disabled = false;
         stopButton.disabled = true;
         // copyButton.disabled remains enabled
-        terminalManager.write('\r\n[Connection Closed]\r\n');
+        if (permanent) {
+            terminalManager.write('\r\n[Connection Closed Permanently. Please refresh to reconnect.]\r\n');
+        } else {
+            terminalManager.write('\r\n[Connection Closed. Attempting to reconnect...]\r\n');
+        }
     }
 
     function handleWebSocketError(event) {
@@ -129,7 +134,11 @@ document.addEventListener('DOMContentLoaded', () => {
         startButton.disabled = false;
         stopButton.disabled = true;
         // copyButton.disabled remains enabled
-        terminalManager.write('\r\n[Connection Error]\r\n');
+        terminalManager.write('\r\n[Connection Error. Attempting to reconnect...]\r\n');
+    }
+
+    function handleWebSocketReconnectAttempt(attempt, maxAttempts, delay) {
+        terminalManager.write(`\r\n[Reconnecting... Attempt ${attempt}/${maxAttempts}. Next attempt in ${delay / 1000}s]\r\n`);
     }
 
     // Initial setup
