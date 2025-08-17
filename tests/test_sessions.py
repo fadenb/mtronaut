@@ -107,3 +107,47 @@ def test_resize_with_explicit_session_id_no_error():
         assert final is not None
         assert final["status"] == "stopped"
         assert final.get("session_id") == sid
+
+
+def test_multiple_concurrent_connections_run_independently():
+    with client.websocket_connect("/ws") as ws1, \
+         client.websocket_connect("/ws") as ws2:
+
+        # Start a tool on the first connection
+        ws1.send_json({
+            "action": "start_tool",
+            "tool": "ping",
+            "target": "localhost -c 5"
+        })
+        running1 = ws1.receive_json()
+        assert running1["status"] == "running"
+        assert "session_id" in running1
+        sid1 = running1["session_id"]
+
+        # Start a tool on the second connection
+        ws2.send_json({
+            "action": "start_tool",
+            "tool": "ping",
+            "target": "localhost -c 5"
+        })
+        running2 = ws2.receive_json()
+        assert running2["status"] == "running"
+        assert "session_id" in running2
+        sid2 = running2["session_id"]
+
+        # Ensure session IDs are different
+        assert sid1 != sid2
+
+        # Drain output for both sessions to ensure they complete
+        final1 = drain_until_stopped(ws1)
+        assert final1 is not None
+        assert final1["status"] == "stopped"
+        assert final1.get("session_id") == sid1
+
+        final2 = drain_until_stopped(ws2)
+        assert final2 is not None
+        assert final2["status"] == "stopped"
+        assert final2.get("session_id") == sid2
+
+        # Implicitly, the cleanup_connection in main.py should handle resource cleanup
+        # when the websockets are closed by the 'with' statement exiting.
