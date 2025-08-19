@@ -44,6 +44,9 @@ class TerminalSession:
         if self._process and self._process.isalive():
             self._process.close() # Use close for more robust termination
         self._process = None
+        # Ensure on_close callback is called
+        if self._on_close:
+            asyncio.create_task(self._on_close())
 
     def resize(self, cols: int, rows: int) -> None:
         """Resizes the pseudo-terminal window."""
