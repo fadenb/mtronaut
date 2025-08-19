@@ -183,6 +183,13 @@ graph TB
 - Efficient WebSocket connection management
 - Resource monitoring (future enhancement)
 
+### 5. Proper Session Cleanup on Stop
+**Challenge**: Ensure that when a session is stopped, the client receives a proper "stopped" message
+**Solution**:
+- Modified the `TerminalSession.stop()` method to explicitly call the `on_close` callback
+- This ensures that session cleanup happens properly and the "stopped" message is sent to the client
+- Fixes a race condition where the `on_close` callback wasn't being called when a session was stopped manually
+
 ## API Design
 
 ### WebSocket Protocol
