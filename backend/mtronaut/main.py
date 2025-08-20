@@ -67,10 +67,11 @@ async def websocket_endpoint(websocket: WebSocket):
 
                 tool = message.get("tool", "ping")
                 target = message.get("target", "localhost")
+                params = message.get("params", {}) # Get parameters
 
                 # Build command via tool configuration with validation
                 try:
-                    cmd = build_command(tool, target)
+                    cmd = build_command(tool, target, params) # Pass params to build_command
                 except KeyError:
                     await websocket.send_json({
                         "status": "error",
@@ -115,6 +116,7 @@ async def websocket_endpoint(websocket: WebSocket):
                     on_output=on_output,
                     on_close=on_close,
                     loop=loop,
+                    params=params, # Pass params to create_session
                 )
                 session_id_holder["id"] = rec.session_id
                 current_session_id = rec.session_id

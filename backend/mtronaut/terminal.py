@@ -1,7 +1,7 @@
 import asyncio
 import ptyprocess
 import shlex
-from typing import Callable, Coroutine, List, Dict, Any
+from typing import Callable, Coroutine, List, Dict, Any, Optional
 
 # A simple type hint for the callback function that handles output
 OutputCallback = Callable[[bytes], Coroutine[Any, Any, None]]
@@ -15,7 +15,8 @@ class TerminalSession:
         cmd: List[str],
         on_output: OutputCallback,
         on_close: CloseCallback,
-        loop: asyncio.AbstractEventLoop
+        loop: asyncio.AbstractEventLoop,
+        params: Optional[Dict[str, Any]] = None # Add params here
     ):
         self._cmd = cmd
         self._on_output = on_output
