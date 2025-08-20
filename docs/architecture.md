@@ -10,7 +10,8 @@ A web-based interface that allows users to trigger network analysis tools on a s
 - Web interface for triggering network analysis tools
 - Real-time streaming of terminal output to browser
 - Support for tools: `mtr`, `tracepath`, `ping`, `traceroute`
-- Simple dropdown tool selection with target IP/hostname input
+- Dynamic, tool-specific configurable parameters
+- Dropdown tool selection with target IP/hostname input
 - Virtual terminal display using xterm.js
 - Copy terminal output to clipboard functionality
 - Output-only terminal (no user input to running tools)
@@ -83,9 +84,10 @@ graph TB
 ### 1. Frontend Components
 
 #### Web Interface (`index.html`)
-- Simple, clean UI with tool selection and terminal display
+- Clean UI with a two-column layout: main controls and terminal on the left, dynamic tool parameters on the right.
 - Dropdown for tool selection (mtr, tracepath, ping, traceroute)
 - Input field for target IP/hostname
+- Dynamic parameter input fields based on selected tool
 - Start/Stop buttons for tool execution
 - Terminal container for xterm.js
 
@@ -97,7 +99,7 @@ graph TB
 - Connection state management
 
 #### Tool Configuration (`tools.js`)
-- Predefined configurations for each network tool
+- Defines tool-specific configurations, including a `parameters` array for dynamic UI rendering.
 - Parameter validation for target inputs
 - Command construction logic
 
@@ -207,6 +209,7 @@ Messages sent from the client to the server are JSON objects with an `action` ke
   - `target` (string): The hostname or IP address to target.
   - `term_cols` (integer): The number of columns in the client's terminal.
   - `term_rows` (integer): The number of rows in the client's terminal.
+  - `params` (object, optional): A dictionary of tool-specific parameters. Keys are parameter names, values are their chosen settings.
 - **Example**:
   ```json
   {
@@ -214,7 +217,11 @@ Messages sent from the client to the server are JSON objects with an `action` ke
     "tool": "mtr",
     "target": "8.8.8.8",
     "term_cols": 80,
-    "term_rows": 24
+    "term_rows": 24,
+    "params": {
+      "display_asn": true,
+      "no_dns_resolution": false
+    }
   }
   ```
 
@@ -264,13 +271,53 @@ Messages sent from the client to the server are JSON objects with an `action` ke
 
 ## Tool Configurations
 
+## Tool Configurations
+
 ### MTR (My Traceroute)
 ```bash
-mtr --interval=1 <target>
+mtr -b <target>
 ```
-- Default interactive mode (not curses, not report mode)
+- Default interactive mode (not curses, not report)
+- Shows both IP addresses and hostnames by default (`-b`)
 - Real-time updates with simple terminal control
 - Requires PTY for proper interactive behavior
+- Configurable parameters:
+    - `display_asn` (`-z`): Display Autonomous System (AS) number alongside each hop.
+
+### Tracepath
+```bash
+tracepath <target>
+```
+- Simple text output
+- Shows path MTU discovery
+- Completes after reaching target
+- Configurable parameters:
+    - `maxHops` (`-m`): Maximum number of hops (TTL).
+    - `no_dns_resolution` (`-n`): Do not resolve hostnames to IP addresses.
+
+### Ping
+```bash
+ping <target>
+```
+- Real-time packet statistics
+- ANSI color support for status
+- Configurable parameters:
+    - `count` (`-c`): Number of pings to send.
+    - `packetSize` (`-s`): Size of packets in bytes.
+    - `timestamp` (`-D`): Print timestamp before each line.
+
+### Traceroute
+```bash
+traceroute <target>
+```
+- Hop-by-hop route discovery
+- Text-based output
+- Completes after reaching target
+- Configurable parameters:
+    - `count` (`-q`): Number of probe packets for each hop.
+    - `maxHops` (`-m`): Maximum number of hops (TTL).
+    - `icmp` (`-I`): Use ICMP ECHO for probes (default).
+    - `no_dns_resolution` (`-n`): Do not resolve hostnames to IP addresses.
 
 ### Tracepath
 ```bash
@@ -396,15 +443,12 @@ mtronaut/
 - Output history and download capability
 - Resource usage monitoring and limits
 - TLS/HTTPS support
-
-### Phase 3 Features
-- Tool parameter customization
 - Scheduled/automated tool execution
 - Result comparison and analysis
 - Multi-server deployment support
 - Advanced security features
 
-## Implementation Phases
+## Current Features
 
 ### Phase 1: Core Functionality
 1. Basic FastAPI server with WebSocket support
@@ -417,6 +461,7 @@ mtronaut/
 2. ANSI color and control character handling
 3. Session management and cleanup
 4. Error handling and recovery
+5. Tool parameter customization
 
 ### Phase 3: Polish and Enhancement
 1. UI improvements and user experience
