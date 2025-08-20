@@ -6,8 +6,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const targetInput = document.getElementById('target-input');
     const startButton = document.getElementById('start-button');
     const stopButton = document.getElementById('stop-button');
-    const copyButton = document.getElementById('copy-button'); // Get copy button
+    const copyButton = document.getElementById('copy-button');
     const terminalContainer = document.getElementById('terminal-container');
+    const toolParametersDiv = document.getElementById('tool-parameters');
 
     let terminalManager;
     let websocketClient;
@@ -20,14 +21,14 @@ document.addEventListener('DOMContentLoaded', () => {
             handleWebSocketOpen,
             handleWebSocketClose,
             handleWebSocketError,
-            handleWebSocketReconnectAttempt // New callback
+            handleWebSocketReconnectAttempt
         );
         terminalManager = new TerminalManager('terminal-container', websocketClient);
     }
 
     // Populate tool dropdown
     function populateToolSelect() {
-        const tools = listToolNames();
+        const tools = window.listToolNames();
         toolSelect.innerHTML = ''; // Clear existing options
         tools.forEach(toolName => {
             const option = document.createElement('option');
@@ -42,7 +43,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Update target input placeholder based on selected tool
     function updateTargetPlaceholder() {
         const selectedTool = toolSelect.value;
-        const config = getToolConfig(selectedTool);
+        const config = window.getToolConfig(selectedTool);
         if (config && config.defaultTarget) {
             targetInput.placeholder = `Enter IP or hostname (e.g., ${config.defaultTarget})`;
             targetInput.value = config.defaultTarget; // Pre-fill with default
@@ -52,8 +53,57 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    function renderToolParameters() {
+        const selectedTool = toolSelect.value;
+        const toolConfig = window.getToolConfig(selectedTool);
+        toolParametersDiv.innerHTML = ''; // Clear previous parameters
+
+        if (toolConfig && toolConfig.parameters) {
+            toolConfig.parameters.forEach(param => {
+                const paramId = `param-${param.name}`;
+                const container = document.createElement('div');
+                container.classList.add('param-item');
+
+                const label = document.createElement('label');
+                label.htmlFor = paramId;
+                label.textContent = param.help_text;
+
+                let inputElement;
+                if (param.param_type === 'bool') {
+                    inputElement = document.createElement('input');
+                    inputElement.type = 'checkbox';
+                    inputElement.id = paramId;
+                    inputElement.name = param.name;
+                    inputElement.checked = param.default;
+                } else if (param.param_type === 'int' || param.param_type === 'float') {
+                    inputElement = document.createElement('input');
+                    inputElement.type = 'number';
+                    inputElement.id = paramId;
+                    inputElement.name = param.name;
+                    inputElement.value = param.default;
+                    if (param.param_type === 'float') {
+                        inputElement.step = 'any';
+                    }
+                } else {
+                    inputElement = document.createElement('input');
+                    inputElement.type = 'text';
+                    inputElement.id = paramId;
+                    inputElement.name = param.name;
+                    inputElement.value = param.default || '';
+                }
+
+                container.appendChild(label);
+                container.appendChild(inputElement);
+                toolParametersDiv.appendChild(container);
+            });
+        }
+    }
+
     // Event Listeners
-    toolSelect.addEventListener('change', updateTargetPlaceholder);
+    toolSelect.addEventListener('change', () => {
+        updateTargetPlaceholder();
+        renderToolParameters();
+    });
 
     startButton.addEventListener('click', () => {
         const tool = toolSelect.value;
@@ -64,17 +114,37 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
+        const params = {};
+        const toolConfig = window.getToolConfig(tool);
+        if (toolConfig && toolConfig.parameters) {
+            toolConfig.parameters.forEach(param => {
+                const inputElement = document.getElementById(`param-${param.name}`);
+                if (inputElement) {
+                    if (param.param_type === 'bool') {
+                        params[param.name] = inputElement.checked;
+                    } else if (param.param_type === 'int') {
+                        params[param.name] = parseInt(inputElement.value);
+                    } else if (param.param_type === 'float') {
+                        params[param.name] = parseFloat(inputElement.value);
+                    } else {
+                        params[param.name] = inputElement.value;
+                    }
+                }
+            });
+        }
+
         terminalManager.clear();
         startButton.disabled = true;
         stopButton.disabled = false;
-        copyButton.disabled = false; // Enable copy button
+        copyButton.disabled = false;
 
         websocketClient.sendJson({
             action: 'start_tool',
             tool: tool,
             target: target,
             term_cols: terminalManager.terminal.cols,
-            term_rows: terminalManager.terminal.rows
+            term_rows: terminalManager.terminal.rows,
+            params: params
         });
     });
 
@@ -82,7 +152,6 @@ document.addEventListener('DOMContentLoaded', () => {
         websocketClient.sendJson({ action: 'stop_tool' });
         startButton.disabled = false;
         stopButton.disabled = true;
-        // copyButton.disabled remains false, allowing copy after stop
     });
 
     copyButton.addEventListener('click', () => {
@@ -92,28 +161,23 @@ document.addEventListener('DOMContentLoaded', () => {
     // WebSocket Message Handlers
     function handleWebSocketMessage(data) {
         if (typeof data === 'string') {
-            // JSON message (status updates)
             const message = JSON.parse(data);
-            // console.log('Status message:', message); // Keep commented for cleaner console
             if (message.status === 'stopped') {
                 startButton.disabled = false;
                 stopButton.disabled = true;
-                // copyButton.disabled remains false, allowing copy after stop
             } else if (message.status === 'error') {
                 startButton.disabled = false;
                 stopButton.disabled = true;
-                copyButton.disabled = true; // Disable copy button on error
+                copyButton.disabled = true;
             }
             terminalManager.write(`\r\n[Server Status]: ${message.message}\r\n`);
         } else {
-            // Binary data (terminal output)
             terminalManager.write(data);
         }
     }
 
     function handleWebSocketOpen() {
         console.log('WebSocket connection established.');
-        // Enable start button only after connection is open
         startButton.disabled = false;
     }
 
@@ -121,7 +185,6 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log('WebSocket connection closed.', event);
         startButton.disabled = false;
         stopButton.disabled = true;
-        // copyButton.disabled remains enabled
         if (permanent) {
             terminalManager.write('\r\n[Connection Closed Permanently. Please refresh to reconnect.]\r\n');
         } else {
@@ -133,7 +196,6 @@ document.addEventListener('DOMContentLoaded', () => {
         console.error('WebSocket error occurred.', event);
         startButton.disabled = false;
         stopButton.disabled = true;
-        // copyButton.disabled remains enabled
         terminalManager.write('\r\n[Connection Error. Attempting to reconnect...]\r\n');
     }
 
@@ -143,5 +205,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Initial setup
     populateToolSelect();
+    renderToolParameters();
     initializeApp();
 });

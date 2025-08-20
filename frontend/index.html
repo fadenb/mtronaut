@@ -11,19 +11,29 @@
     <div id="app">
         <h1>Mtronaut - Network Analysis Web Interface</h1>
         <p class="tagline">Crafted with ❤️ by FadenB, for all your network analysis adventures!</p>
-        <div class="controls">
-            <select id="tool-select">
-                <option value="ping">ping</option>
-                <option value="mtr">mtr</option>
-                <option value="tracepath">tracepath</option>
-                <option value="traceroute">traceroute</option>
-            </select>
-            <input type="text" id="target-input" placeholder="Enter IP or hostname (e.g., 8.8.8.8)">
-            <button id="start-button">Start</button>
-            <button id="stop-button" disabled>Stop</button>
-            <button id="copy-button" disabled>Copy Output</button>
+        <div id="main-content">
+            <div id="left-panel">
+                <div class="controls">
+                    <select id="tool-select">
+                        <option value="ping">ping</option>
+                        <option value="mtr">mtr</option>
+                        <option value="tracepath">tracepath</option>
+                        <option value="traceroute">traceroute</option>
+                    </select>
+                    <input type="text" id="target-input" placeholder="Enter IP or hostname (e.g., 8.8.8.8)">
+                    <button id="start-button">Start</button>
+                    <button id="stop-button" disabled>Stop</button>
+                    <button id="copy-button" disabled>Copy Output</button>
+                </div>
+                <div id="terminal-container"></div>
+            </div>
+            <div id="right-panel">
+                <h2>Tool Parameters</h2>
+                <div id="tool-parameters" class="parameters-controls">
+                    <!-- Dynamic parameters will be rendered here -->
+                </div>
+            </div>
         </div>
-        <div id="terminal-container"></div>
     </div>
 
     <script src="https://unpkg.com/xterm@5.3.0/lib/xterm.js"></script>
