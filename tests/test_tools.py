@@ -12,10 +12,14 @@ from mtronaut.tools import (
 @pytest.mark.parametrize(
     "tool,target,expected",
     [
-        ("ping", "8.8.8.8", ["ping", "-c", "10", "8.8.8.8"]),
-        ("traceroute", "1.1.1.1", ["traceroute", "-I", "1.1.1.1"]),
-        ("tracepath", "example.com", ["tracepath", "example.com"]),
-        ("mtr", "2001:4860:4860::8888", ["mtr", "--interval=1", "2001:4860:4860::8888"]),
+        # Ping with default count and packetSize
+        ("ping", "8.8.8.8", ["ping", "-c10", "-s56", "8.8.8.8"]),
+        # Traceroute with default count, maxHops, and icmp
+        ("traceroute", "1.1.1.1", ["traceroute", "-q3", "-m30", "-I", "1.1.1.1"]),
+        # Tracepath with default maxHops
+        ("tracepath", "example.com", ["tracepath", "-m30", "example.com"]),
+        # MTR with default parameters (now includes -b)
+        ("mtr", "2001:4860:4860::8888", ["mtr", "-b", "2001:4860:4860::8888"]),
     ],
 )
 def test_build_command_valid(tool, target, expected):
