@@ -18,6 +18,7 @@ from dataclasses import dataclass, field
 from typing import Any, Callable, Dict, List, Optional
 import ipaddress
 import validators
+import socket
 
 @dataclass(frozen=True)
 class ToolParameter:
@@ -68,7 +69,7 @@ class ToolConfig:
                 if not p_config:
                     raise ValueError(f"Unknown parameter: {p_name}")
                 if not p_config.validate(p_value):
-                    raise ValueError(f"Invalid value for parameter '{p_name}': {p_value}")
+                    raise ValueError(f"Invalid value for parameter '{p_name}': {p_value} (expected type: {p_config.param_type.__name__})")
                 final_params[p_name] = p_value
 
         # Add parameters to command parts
@@ -102,9 +103,12 @@ def validate_target(target: str) -> None:
     if is_valid_ip:
         return
 
-    # Fallback to hostname validation if not a valid IP
-    if validators.domain(target):
+    # Fallback to hostname validation using DNS resolution
+    try:
+        socket.gethostbyname(target)
         return
+    except socket.gaierror:
+        pass # Not a resolvable hostname, continue to raise error
 
     raise ValueError(f"Invalid target: {target!r}")
 
