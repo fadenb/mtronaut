@@ -13,9 +13,9 @@ from mtronaut.tools import (
     "tool,target,expected",
     [
         # Ping with default count and packetSize
-        ("ping", "8.8.8.8", ["ping", "-c10", "-s56", "8.8.8.8"]),
+        ("ping", "8.8.8.8", ["ping", "-c10", "-s56", "-D", "8.8.8.8"]),
         # Traceroute with default count, maxHops, and icmp
-        ("traceroute", "1.1.1.1", ["traceroute", "-q3", "-m30", "-I", "1.1.1.1"]),
+        ("traceroute", "1.1.1.1", ["traceroute", "-q3", "-m30", "-I", "--resolve-hostnames", "1.1.1.1"]),
         # Tracepath with default maxHops
         ("tracepath", "example.com", ["tracepath", "-m30", "example.com"]),
         # MTR with default parameters (now includes -b)
