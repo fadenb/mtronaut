@@ -46,7 +46,9 @@ class SessionManager:
         params: Optional[Dict[str, Any]] = None, # Add params to signature
     ) -> SessionRecord:
         session_id = str(uuid4())
-        term = TerminalSession(cmd=cmd, on_output=on_output, on_close=on_close, loop=loop, params=params) # Pass params to TerminalSession
+        # Set TERM environment variable for the terminal session
+        env = {"TERM": "xterm-256color"}
+        term = TerminalSession(cmd=cmd, on_output=on_output, on_close=on_close, loop=loop, params=params, env=env) # Pass params and env to TerminalSession
         rec = SessionRecord(session_id=session_id, terminal=term, tool=tool, target=target)
         self._by_conn.setdefault(connection_id, {})[session_id] = rec
         return rec

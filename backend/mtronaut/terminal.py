@@ -1,4 +1,5 @@
 import asyncio
+import os # Added for environment variables
 import ptyprocess
 import shlex
 from typing import Callable, Coroutine, List, Dict, Any, Optional
@@ -16,12 +17,14 @@ class TerminalSession:
         on_output: OutputCallback,
         on_close: CloseCallback,
         loop: asyncio.AbstractEventLoop,
-        params: Optional[Dict[str, Any]] = None # Add params here
+        params: Optional[Dict[str, Any]] = None, # Add params here
+        env: Optional[Dict[str, str]] = None # Add env here
     ):
         self._cmd = cmd
         self._on_output = on_output
         self._on_close = on_close
         self._loop = loop
+        self._env = env # Store the environment
         self._process: ptyprocess.PtyProcess | None = None
         self._read_task: asyncio.Task | None = None # To manage the async read loop
 
@@ -31,7 +34,8 @@ class TerminalSession:
             raise RuntimeError("Session has already been started.")
 
         try:
-            self._process = ptyprocess.PtyProcess.spawn(self._cmd, echo=False)
+            # Pass the environment to spawn, defaulting to current environment if not provided
+            self._process = ptyprocess.PtyProcess.spawn(self._cmd, echo=False, env=self._env)
             # Start the asynchronous reader loop
             self._read_task = self._loop.create_task(self._read_output_loop())
         except (FileNotFoundError, ptyprocess.PtyProcessError) as e:
