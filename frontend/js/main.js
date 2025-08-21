@@ -117,6 +117,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    function isValidTarget(target) {
+        // This is a basic check to prevent command injection.
+        // The backend has more robust validation.
+        const validTargetRegex = /^[a-zA-Z0-9.-_:]+$/;
+        return validTargetRegex.test(target);
+    }
+
     // Event Listeners
     toolSelect.addEventListener('change', () => {
         updateTargetPlaceholder();
@@ -130,6 +137,14 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!target) {
             alert('Please enter a target IP or hostname.');
             return;
+        }
+
+        if (!isValidTarget(target)) {
+            targetInput.style.border = '1px solid red';
+            alert('Invalid target. Please enter a valid IP address or hostname.');
+            return;
+        } else {
+            targetInput.style.border = ''; // Reset border
         }
 
         const params = {};

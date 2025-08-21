@@ -17,19 +17,7 @@ Intended usage:
 from dataclasses import dataclass, field
 from typing import Any, Callable, Dict, List, Optional
 import ipaddress
-import re
-
-
-# Simple but practical hostname pattern (RFC-1123 relaxed):
-# - labels: alphanum + hyphen, not starting/ending with hyphen
-# - dots separate labels, total length reasonable
-# - allow single-label hostnames for local resolution scenarios
-_HOST_LABEL = r"(?!-)[A-Za-z0-9-]{1,63}(?<!-)"
-_HOSTNAME_RE = re.compile(rf"^{_HOST_LABEL}(?:\.{_HOST_LABEL})*$")
-
-
-# Validator for positive integers
-_POSITIVE_INT_RE = re.compile(r"^[1-9][0-9]*$")
+import validators
 
 @dataclass(frozen=True)
 class ToolParameter:
@@ -42,14 +30,12 @@ class ToolParameter:
     # Format string for the command line, e.g., "-i {}" or "--interval={}"
     param_format: str | Callable[[Any], List[str]] = "{}"
     # Validator regex or function
-    validator: re.Pattern | Callable[[Any], bool] | None = None
+    validator: Callable[[Any], bool] | None = None
 
     def validate(self, value: Any) -> bool:
         if not isinstance(value, self.param_type):
             return False
         if self.validator:
-            if isinstance(self.validator, re.Pattern):
-                return bool(self.validator.fullmatch(str(value)))
             return self.validator(value)
         return True
 
@@ -100,42 +86,27 @@ class ToolConfig:
         parts.append(target)
         return parts
 
-
-def is_ipv4(value: str) -> bool:
-    try:
-        ipaddress.IPv4Address(value)
-        return True
-    except ValueError:
-        return False
-
-
-def is_ipv6(value: str) -> bool:
-    try:
-        ipaddress.IPv6Address(value)
-        return True
-    except ValueError:
-        return False
-
-
-def is_hostname(value: str) -> bool:
-    # Reject values that look like raw URLs or contain spaces
-    if "://" in value or " " in value:
-        return False
-    # If it contains only digits and dots, treat as IPv4-like and do NOT accept as hostname.
-    # This ensures invalid IPv4 like '256.256.256.256' doesn't slip through hostname regex.
-    if re.fullmatch(r"[0-9.]+", value):
-        return False
-    return bool(_HOSTNAME_RE.match(value))
-
-
 def validate_target(target: str) -> None:
     """Validate a user-supplied target. Accept hostnames, IPv4, and IPv6."""
     if not target or not isinstance(target, str):
         raise ValueError("Target must be a non-empty string")
-    if is_ipv4(target) or is_ipv6(target) or is_hostname(target):
-        return
-    raise ValueError(f"Invalid target: {target!r}")
 
+    # Use a combined check for IP addresses and hostnames
+    is_valid_ip = False
+    try:
+        ipaddress.ip_address(target)
+        is_valid_ip = True
+    except ValueError:
+        pass
+
+    if is_valid_ip:
+        return
+
+    # Fallback to hostname validation if not a valid IP
+    if validators.domain(target):
+        return
+
+    raise ValueError(f"Invalid target: {target!r}")
 
 # Registry of supported tools
 _TOOL_REGISTRY: Dict[str, ToolConfig] = {
