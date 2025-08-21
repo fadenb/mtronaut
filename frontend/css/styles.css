@@ -90,33 +90,38 @@ h1 {
 
 .parameters-controls {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.param-toggles,
+.param-inputs {
+    display: flex;
+    flex-direction: column;
     gap: 15px;
-    width: 100%;
-    margin-bottom: 20px;
-    background-color: #404552;
-    padding: 15px;
-    border-radius: 5px;
 }
 
 .param-item {
-    display: flex;
+    display: grid;
+    grid-template-columns: 1fr auto;
     align-items: center;
     gap: 10px;
 }
 
 .param-item label {
-    flex-grow: 1;
     color: #abb2bf;
 }
 
-.param-item input[type="checkbox"] {
-    width: 20px;
-    height: 20px;
-    cursor: pointer;
+.param-item.input-first {
+    grid-template-columns: auto 1fr;
 }
 
-.param-item input[type="number"] {
+.param-item.input-first label {
+    justify-self: start;
+}
+
+.param-item input[type="number"],
+.param-item input[type="text"] {
     width: 80px;
     padding: 5px;
     border-radius: 3px;
@@ -125,41 +130,6 @@ h1 {
     color: #abb2bf;
 }
 
-#main-content {
-    display: flex;
-    gap: 20px;
-    width: 100%;
-}
-
-#left-panel {
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-}
-
-#right-panel {
-    flex-basis: 300px;
-    flex-shrink: 0;
-    background-color: #3a404d;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-}
-
-#right-panel h2 {
-    color: #61afef;
-    margin-top: 0;
-    text-align: center;
-    margin-bottom: 20px;
-}
-
-.parameters-controls {
-    display: grid;
-    grid-template-columns: 1fr; /* Single column layout */
-    gap: 15px;
-    width: 100%;
-    background-color: #404552;
-    padding: 15px;
-    border-radius: 5px;
+.input-number {
+    max-width: 100px;
 }

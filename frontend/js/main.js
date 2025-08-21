@@ -59,6 +59,12 @@ document.addEventListener('DOMContentLoaded', () => {
         toolParametersDiv.innerHTML = ''; // Clear previous parameters
 
         if (toolConfig && toolConfig.parameters) {
+            const togglesContainer = document.createElement('div');
+            togglesContainer.className = 'param-toggles';
+
+            const inputsContainer = document.createElement('div');
+            inputsContainer.className = 'param-inputs';
+
             toolConfig.parameters.forEach(param => {
                 const paramId = `param-${param.name}`;
                 const container = document.createElement('div');
@@ -70,32 +76,44 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 let inputElement;
                 if (param.param_type === 'bool') {
+                    container.classList.add('input-first');
                     inputElement = document.createElement('input');
                     inputElement.type = 'checkbox';
                     inputElement.id = paramId;
                     inputElement.name = param.name;
                     inputElement.checked = param.default;
-                } else if (param.param_type === 'int' || param.param_type === 'float') {
-                    inputElement = document.createElement('input');
-                    inputElement.type = 'number';
-                    inputElement.id = paramId;
-                    inputElement.name = param.name;
-                    inputElement.value = param.default;
-                    if (param.param_type === 'float') {
-                        inputElement.step = 'any';
-                    }
+                    container.appendChild(inputElement);
+                    container.appendChild(label);
+                    togglesContainer.appendChild(container);
                 } else {
-                    inputElement = document.createElement('input');
-                    inputElement.type = 'text';
-                    inputElement.id = paramId;
-                    inputElement.name = param.name;
-                    inputElement.value = param.default || '';
+                    if (param.param_type === 'int' || param.param_type === 'float') {
+                        container.classList.add('input-first');
+                        inputElement = document.createElement('input');
+                        inputElement.type = 'number';
+                        inputElement.classList.add('input-number'); // Add class for styling
+                        if (param.param_type === 'float') {
+                            inputElement.step = 'any';
+                        }
+                        inputElement.id = paramId;
+                        inputElement.name = param.name;
+                        inputElement.value = param.default || '';
+                        container.appendChild(inputElement);
+                        container.appendChild(label);
+                    } else {
+                        inputElement = document.createElement('input');
+                        inputElement.type = 'text';
+                        inputElement.id = paramId;
+                        inputElement.name = param.name;
+                        inputElement.value = param.default || '';
+                        container.appendChild(label);
+                        container.appendChild(inputElement);
+                    }
+                    inputsContainer.appendChild(container);
                 }
-
-                container.appendChild(label);
-                container.appendChild(inputElement);
-                toolParametersDiv.appendChild(container);
             });
+
+            toolParametersDiv.appendChild(togglesContainer);
+            toolParametersDiv.appendChild(inputsContainer);
         }
     }
 
