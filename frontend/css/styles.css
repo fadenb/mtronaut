@@ -26,12 +26,7 @@ h1 {
     margin-bottom: 10px;
 }
 
-.tagline {
-    text-align: center;
-    color: #98c379;
-    font-style: italic;
-    margin-bottom: 20px;
-}
+
 
 .controls {
     display: flex;
