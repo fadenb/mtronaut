@@ -210,7 +210,7 @@ _TOOL_REGISTRY: Dict[str, ToolConfig] = {
                 name="timestamp",
                 param_type=bool,
                 help_text="Print timestamp (-D)",
-                default=False,
+                default=True,
                 param_format="-D",
             ),
         ],
@@ -245,16 +245,15 @@ _TOOL_REGISTRY: Dict[str, ToolConfig] = {
                 param_format="-I",
             ),
             ToolParameter(
-                name="no_dns_resolution",
+                name="resolve_hostnames",
                 param_type=bool,
-                help_text="Do not resolve hostnames to IPs (-n)",
-                default=False,
-                param_format="-n",
+                help_text="Resolve hostnames",
+                default=True,
+                param_format="--resolve-hostnames",
             ),
         ],
     ),
 }
-
 
 def get_tool_config(name: str) -> ToolConfig:
     """Lookup a tool configuration by name (case-insensitive)."""
@@ -263,11 +262,9 @@ def get_tool_config(name: str) -> ToolConfig:
         raise KeyError(f"Unknown tool: {name!r}. Supported: {', '.join(sorted(_TOOL_REGISTRY))}")
     return _TOOL_REGISTRY[key]
 
-
 def list_tools() -> List[str]:
     """List supported tool names."""
     return sorted(_TOOL_REGISTRY.keys())
-
 
 def build_command(tool: str, target: str, params: Optional[Dict[str, Any]] = None) -> List[str]:
     """Convenience wrapper to construct a full command for a given tool and target."""

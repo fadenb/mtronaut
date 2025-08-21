@@ -9,7 +9,7 @@ const toolConfigurations = {
         parameters: [
             { name: "count", param_type: "int", help_text: "Number of pings to send (1-100)", default: 10 },
             { name: "packetSize", param_type: "int", help_text: "Size of packets (bytes)", default: 56 },
-            { name: "timestamp", param_type: "bool", help_text: "Print timestamp (-D)", default: false }
+            { name: "timestamp", param_type: "bool", help_text: "Print timestamp (-D)", default: true }
         ]
     },
     "mtr": {
@@ -37,7 +37,7 @@ const toolConfigurations = {
             { name: "count", param_type: "int", help_text: "Number of probe packets for each hop (1-10)", default: 3 },
             { name: "maxHops", param_type: "int", help_text: "Maximum number of hops (TTL)", default: 30 },
             { name: "icmp", param_type: "bool", help_text: "Use ICMP ECHO for probes (-I)", default: true },
-            { name: "no_dns_resolution", param_type: "bool", help_text: "Do not resolve hostnames to IPs (-n)", default: false }
+            { name: "resolve_hostnames", param_type: "bool", help_text: "Resolve hostnames", default: true }
         ]
     }
 };
