@@ -4,6 +4,7 @@ Welcome to Mtronaut! This project delivers a modern, real-time web interface for
 
 ## ✨ Features
 
+*   **CI/CD**: Fully automated testing with GitHub Actions. [![CI](https://github.com/fadenb/mtronaut/actions/workflows/test.yml/badge.svg)](https://github.com/fadenb/mtronaut/actions/workflows/test.yml)
 *   **Real-time Output Streaming**: Live terminal output directly to your browser. ⚡
 *   **Interactive Terminal**: Powered by xterm.js for a true terminal experience with ANSI colors. 🌈
 *   **Robust Session Management**: Run multiple diagnostic sessions concurrently. 📊

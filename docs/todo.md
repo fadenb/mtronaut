@@ -206,7 +206,7 @@ When resuming work on this project, review the current status below and pick up 
 - Test with different screen sizes
 
 #### 18. Optimize streaming performance and minimize latency
-**Status:** ⏳ Pending  
+**Status:** 🔄 In Progress
 **Description:** Fine-tune the streaming pipeline for optimal real-time performance.  
 **Tasks:**
 - Optimize buffer sizes for minimal latency
@@ -218,7 +218,7 @@ When resuming work on this project, review the current status below and pick up 
 ### Phase 5: Documentation and Deployment
 
 #### 19. Create deployment documentation and setup instructions
-**Status:** ⏳ Pending  
+**Status:** 🔄 In Progress
 **Description:** Write comprehensive documentation for deploying and running the application.  
 **Tasks:**
 - Document system requirements
@@ -226,9 +226,10 @@ When resuming work on this project, review the current status below and pick up 
 - Write deployment guide
 - Add troubleshooting section
 - Create user manual
+- Add CI/CD documentation with GitHub Actions workflow.
 
 #### 20. Test multiple concurrent sessions and resource cleanup
-**Status:** ⏳ Pending  
+**Status:** 🔄 In Progress
 **Description:** Final testing of the complete system with multiple users and sessions.  
 **Tasks:**
 - Test multiple concurrent users
@@ -236,6 +237,7 @@ When resuming work on this project, review the current status below and pick up 
 - Test session isolation
 - Monitor memory and CPU usage
 - Validate cleanup on various disconnect scenarios
+- Added automated testing with GitHub Actions.
 
 ## Next Steps
 
