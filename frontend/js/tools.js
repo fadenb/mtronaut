@@ -17,7 +17,8 @@ const toolConfigurations = {
         defaultTarget: "8.8.8.8",
         description: "Network diagnostic tool combining traceroute and ping.",
         parameters: [
-            { name: "display_asn", param_type: "bool", help_text: "Display AS number (-z)", default: false }
+            { name: "display_asn", param_type: "bool", help_text: "Display AS number (-z)", default: false },
+            { name: "tcp", param_type: "bool", help_text: "Use TCP probes instead of ICMP (--tcp)", default: false }
         ]
     },
     "tracepath": {

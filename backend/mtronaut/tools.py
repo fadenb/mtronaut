@@ -134,6 +134,13 @@ _TOOL_REGISTRY: Dict[str, ToolConfig] = {
                 default=False,
                 param_format="-z",
             ),
+            ToolParameter(
+                name="tcp",
+                param_type=bool,
+                help_text="Use TCP probes instead of ICMP (--tcp)",
+                default=False,
+                param_format="--tcp",
+            ),
         ],
     ),
     "tracepath": ToolConfig(

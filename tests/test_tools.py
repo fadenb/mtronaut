@@ -10,20 +10,22 @@ from mtronaut.tools import (
 
 
 @pytest.mark.parametrize(
-    "tool,target,expected",
+    "tool,target,params,expected",
     [
         # Ping with default count and packetSize
-        ("ping", "8.8.8.8", ["ping", "-c10", "-s56", "-D", "8.8.8.8"]),
+        ("ping", "8.8.8.8", {}, ["ping", "-c10", "-s56", "-D", "8.8.8.8"]),
         # Traceroute with default count, maxHops, and icmp
-        ("traceroute", "1.1.1.1", ["traceroute", "-q3", "-m30", "-I", "--resolve-hostnames", "1.1.1.1"]),
+        ("traceroute", "1.1.1.1", {}, ["traceroute", "-q3", "-m30", "-I", "--resolve-hostnames", "1.1.1.1"]),
         # Tracepath with default maxHops
-        ("tracepath", "example.com", ["tracepath", "-m30", "example.com"]),
+        ("tracepath", "example.com", {}, ["tracepath", "-m30", "example.com"]),
         # MTR with default parameters (now includes -b)
-        ("mtr", "2001:4860:4860::8888", ["mtr", "-b", "2001:4860:4860::8888"]),
+        ("mtr", "2001:4860:4860::8888", {}, ["mtr", "-b", "2001:4860:4860::8888"]),
+        # MTR with --tcp flag
+        ("mtr", "google.com", {"tcp": True}, ["mtr", "-b", "--tcp", "google.com"]),
     ],
 )
-def test_build_command_valid(tool, target, expected):
-    cmd = build_command(tool, target)
+def test__command_valid(tool, target, params, expected):
+    cmd = build_command(tool, target, params)
     assert cmd == expected
 
 
