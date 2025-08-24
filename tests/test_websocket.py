@@ -56,7 +56,8 @@ def test_process_finishes_naturally():
         websocket.send_json({
             "action": "start_tool",
             "tool": "ping",
-            "target": "localhost -c 1"
+            "target": "localhost",
+            "params": {"count": 1}
         })
 
         # State 1: Running
@@ -95,7 +96,8 @@ def test_real_time_output_streaming():
         websocket.send_json({
             "action": "start_tool",
             "tool": "ping",
-            "target": "localhost -c 5" # Ping 5 times to ensure continuous output
+            "target": "localhost",
+            "params": {"count": 5} # Ping 5 times to ensure continuous output
         })
 
         # State 1: Running

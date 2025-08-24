@@ -41,7 +41,8 @@ def test_start_returns_session_id_and_stop_by_id():
         websocket.send_json({
             "action": "start_tool",
             "tool": "ping",
-            "target": "localhost -c 1"
+            "target": "localhost",
+            "params": {"count": 1}
         })
         print(f"[{time.time():.6f}] test_start_returns_session_id_and_stop_by_id: Sent start_tool message")
 
@@ -75,7 +76,8 @@ def test_cannot_start_second_session_while_one_is_running():
         websocket.send_json({
             "action": "start_tool",
             "tool": "ping",
-            "target": "localhost -c 1"
+            "target": "localhost",
+            "params": {"count": 1}
         })
         print(f"[{time.time():.6f}] test_cannot_start_second_session_while_one_is_running: Sent first start_tool message")
         
@@ -98,7 +100,8 @@ def test_cannot_start_second_session_while_one_is_running():
         websocket.send_json({
             "action": "start_tool",
             "tool": "ping",
-            "target": "localhost -c 1"
+            "target": "localhost",
+            "params": {"count": 1}
         })
         print(f"[{time.time():.6f}] test_cannot_start_second_session_while_one_is_running: Sent second start_tool message")
         
@@ -186,7 +189,8 @@ def test_resize_with_explicit_session_id_no_error():
         websocket.send_json({
             "action": "start_tool",
             "tool": "ping",
-            "target": "localhost -c 1"
+            "target": "localhost",
+            "params": {"count": 1}
         })
         print(f"[{time.time():.6f}] test_resize_with_explicit_session_id_no_error: Sent start_tool message")
         running = websocket.receive_json()
@@ -222,7 +226,8 @@ def test_multiple_concurrent_connections_run_independently():
         ws1.send_json({
             "action": "start_tool",
             "tool": "ping",
-            "target": "localhost -c 5"
+            "target": "localhost",
+            "params": {"count": 5}
         })
         print(f"[{time.time():.6f}] test_multiple_concurrent_connections_run_independently: Sent start_tool message to ws1")
         running1 = ws1.receive_json()
@@ -235,7 +240,8 @@ def test_multiple_concurrent_connections_run_independently():
         ws2.send_json({
             "action": "start_tool",
             "tool": "ping",
-            "target": "localhost -c 5"
+            "target": "localhost",
+            "params": {"count": 5}
         })
         print(f"[{time.time():.6f}] test_multiple_concurrent_connections_run_independently: Sent start_tool message to ws2")
         running2 = ws2.receive_json()

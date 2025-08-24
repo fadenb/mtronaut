@@ -27,6 +27,7 @@ class TerminalSession:
         self._env = env # Store the environment
         self._process: ptyprocess.PtyProcess | None = None
         self._read_task: asyncio.Task | None = None # To manage the async read loop
+        self._close_task: asyncio.Task | None = None # To manage the close callback
 
     def start(self) -> None:
         """Starts the process in a new PTY."""
@@ -49,9 +50,12 @@ class TerminalSession:
         if self._process and self._process.isalive():
             self._process.close() # Use close for more robust termination
         self._process = None
-        # Ensure on_close callback is called
+        # Ensure on_close callback is called - cancel any existing task first
+        if self._close_task:
+            self._close_task.cancel()
+            self._close_task = None
         if self._on_close:
-            asyncio.create_task(self._on_close())
+            self._close_task = asyncio.create_task(self._on_close())
 
     def resize(self, cols: int, rows: int) -> None:
         """Resizes the pseudo-terminal window."""

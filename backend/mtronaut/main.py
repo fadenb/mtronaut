@@ -78,13 +78,23 @@ async def websocket_endpoint(websocket: WebSocket):
                         "message": f"Tool '{tool}' not allowed. Allowed: {', '.join(list_tools())}"
                     })
                     continue
-                except ValueError:
-                    # Legacy compatibility: allow raw args appended in 'target' (used in tests)
-                    try:
-                        cmd = shlex.split(f"{tool} {target}")
-                    except Exception as ve2:
-                        await websocket.send_json({"status": "error", "message": f"Invalid target: {ve2}"})
+                except ValueError as ve:
+                    # Check if this is a validation error that should fail
+                    error_msg = str(ve)
+                    if ("Target must be a non-empty string" in error_msg or
+                        "Invalid target:" in error_msg or
+                        "Unknown parameter:" in error_msg or
+                        "Invalid value for parameter" in error_msg):
+                        # This is a validation error - send error response
+                        await websocket.send_json({"status": "error", "message": error_msg})
                         continue
+                    else:
+                        # For other ValueError cases, try legacy compatibility
+                        try:
+                            cmd = shlex.split(f"{tool} {target}")
+                        except Exception as ve2:
+                            await websocket.send_json({"status": "error", "message": f"Invalid target: {ve2}"})
+                            continue
 
                 loop = asyncio.get_running_loop()
 
@@ -120,18 +130,29 @@ async def websocket_endpoint(websocket: WebSocket):
                 )
                 session_id_holder["id"] = rec.session_id
                 current_session_id = rec.session_id
-                rec.terminal.start()
 
-                # Optional resize
-                term_cols = message.get("term_cols", 80)
-                term_rows = message.get("term_rows", 24)
-                rec.terminal.resize(cols=term_cols, rows=term_rows)
+                try:
+                    rec.terminal.start()
 
-                await websocket.send_json({
-                    "status": "running",
-                    "message": f"Started {tool} {target}",
-                    "session_id": rec.session_id
-                })
+                    # Optional resize
+                    term_cols = message.get("term_cols", 80)
+                    term_rows = message.get("term_rows", 24)
+                    rec.terminal.resize(cols=term_cols, rows=term_rows)
+
+                    await websocket.send_json({
+                        "status": "running",
+                        "message": f"Started {tool} {target}",
+                        "session_id": rec.session_id
+                    })
+                except Exception as e:
+                    # Clean up the failed session
+                    session_manager.remove(connection_id, rec.session_id)
+                    current_session_id = None
+                    await websocket.send_json({
+                        "status": "error",
+                        "message": f"Failed to start process: {str(e)}"
+                    })
+                    continue
 
             elif action == "stop_tool":
                 # If no id provided, stop the current session for back-compat
