@@ -3,8 +3,10 @@ import json
 import pytest
 from fastapi.testclient import TestClient
 from starlette.websockets import WebSocketDisconnect
+from unittest.mock import patch
 
 from mtronaut.main import app
+from mtronaut import main # Import main to patch build_command
 
 client = TestClient(app)
 
@@ -140,3 +142,41 @@ def test_invalid_tool():
         response = websocket.receive_json()
         assert response["status"] == "error"
         assert "not allowed" in response["message"]
+
+
+def test_start_tool_invalid_target():
+    """
+    Tests that the server rejects an invalid target for a tool.
+    """
+    with client.websocket_connect("/ws") as websocket:
+        websocket.send_json({
+            "action": "start_tool",
+            "tool": "ping",
+            "target": "invalid target with spaces"
+        })
+        response = websocket.receive_json()
+        assert response["status"] == "error"
+        assert "Invalid target:" in response["message"]
+
+
+def test_start_tool_shlex_error():
+    """
+    Tests that the server handles shlex.split errors during tool startup.
+    This covers the fallback shlex.split block in main.py.
+    """
+    with patch('mtronaut.main.build_command') as mock_build_command:
+        # Configure mock to raise a generic ValueError that won't be caught by specific checks
+        mock_build_command.side_effect = ValueError("A generic error not specifically handled")
+
+        with client.websocket_connect("/ws") as websocket:
+            websocket.send_json({
+                "action": "start_tool",
+                "tool": "ping",
+                "target": "localhost\"" # Malformed target to cause shlex.split error
+            })
+            response = websocket.receive_json()
+            assert response["status"] == "error"
+            assert "Invalid target:" in response["message"]
+            mock_build_command.assert_called_once()
+
+
