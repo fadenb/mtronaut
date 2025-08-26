@@ -65,7 +65,10 @@ class TestWebSocketSessions:
                 "action": "start_tool",
                 "tool": "ping",
                 "target": "localhost",
-                "params": {"count": 2}  # Make it a bit longer
+                "params": {"count": 2}  # This is intentionally a multi-second command. It ensures the first
+                                         # session is still active when we try to start a second one. A 2-second
+                                         # duration is a safe margin, as the subsequent websocket messages are
+                                         # sent and processed in milliseconds.
             })
             running1 = websocket.receive_json()
             assert running1["status"] == "running"
