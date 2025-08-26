@@ -113,6 +113,33 @@ class TestSessionManagerUnit:
         # Should not raise an exception
         manager.stop("nonexistent_conn", "nonexistent_session")
 
+    def test_stop_existing_session(self):
+        """Test SessionManager.stop with existing session."""
+        manager = SessionManager()
+        mock_loop = MagicMock()
+        mock_on_output = AsyncMock()
+        mock_on_close = AsyncMock()
+        
+        # Create a session
+        rec = manager.create_session(
+            connection_id="conn1",
+            tool="ping",
+            target="localhost",
+            cmd=["ping", "localhost"],
+            on_output=mock_on_output,
+            on_close=mock_on_close,
+            loop=mock_loop
+        )
+        
+        # Mock the terminal stop method
+        rec.terminal.stop = MagicMock()
+        
+        # Stop the session
+        manager.stop("conn1", rec.session_id)
+        
+        # Verify that the terminal stop method was called
+        rec.terminal.stop.assert_called_once()
+
     def test_remove_nonexistent_session(self):
         """Test SessionManager.remove with nonexistent session."""
         manager = SessionManager()
@@ -185,3 +212,32 @@ class TestSessionManagerUnit:
         # Verify both stop methods were called
         rec1.terminal.stop.assert_called_once()
         rec2.terminal.stop.assert_called_once()
+
+    def test_remove_from_empty_bucket(self):
+        """Test SessionManager.remove with a connection that has an empty session dict."""
+        manager = SessionManager()
+        
+        # Add a session first, then remove it to create an empty bucket
+        mock_loop = MagicMock()
+        mock_on_output = AsyncMock()
+        mock_on_close = AsyncMock()
+        
+        rec = manager.create_session(
+            connection_id="conn1",
+            tool="ping",
+            target="localhost",
+            cmd=["ping", "localhost"],
+            on_output=mock_on_output,
+            on_close=mock_on_close,
+            loop=mock_loop
+        )
+        
+        # Remove the session, which should leave an empty bucket
+        manager.remove("conn1", rec.session_id)
+        
+        # Now try to remove a nonexistent session from the same connection
+        # This should not raise an exception and should clean up the empty bucket
+        manager.remove("conn1", "nonexistent_session")
+        
+        # Verify the connection entry is removed when bucket is empty
+        assert "conn1" not in manager._by_conn
