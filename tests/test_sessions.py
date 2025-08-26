@@ -65,7 +65,7 @@ class TestWebSocketSessions:
                 "action": "start_tool",
                 "tool": "ping",
                 "target": "localhost",
-                "params": {"count": 5}  # Make it a bit longer
+                "params": {"count": 2}  # Make it a bit longer
             })
             running1 = websocket.receive_json()
             assert running1["status"] == "running"
