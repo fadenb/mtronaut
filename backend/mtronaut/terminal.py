@@ -64,40 +64,26 @@ class TerminalSession:
 
     async def _read_output_loop(self) -> None:
         """Continuously reads data from the PTY and calls the async output handler."""
-        while self._process and self._process.isalive():
+        while self._process:
             try:
                 output = await asyncio.to_thread(self._process.read, 1024)
                 if output:
                     await self._on_output(output)
                 else:
-                    await asyncio.sleep(0.01) # Give process time to produce output
-            except (IOError, EOFError):
-                break # Process likely exited or PTY closed
+                    # If read() returns empty bytes, the process might be idle or finished.
+                    # If it's not alive, we can exit the loop.
+                    if not self._process.isalive():
+                        break
+                    await asyncio.sleep(0.01) # Prevent busy-looping when idle
+            except EOFError:
+                # This is the definitive signal that the process has closed the PTY.
+                break
             except asyncio.CancelledError:
+                # The task was cancelled, e.g., by stop().
                 break
-            except Exception as e:
-                print(f"Error in _read_output_loop (main loop): {e}")
+            except Exception:
+                # Broad exception to catch other potential I/O errors.
                 break
-
-        # Process is no longer alive, or an error occurred. Now, drain any remaining output.
-        if self._process:
-            while True:
-                try:
-                    remaining_output = await asyncio.to_thread(self._process.read, 1024)
-                    if remaining_output:
-                        await self._on_output(remaining_output)
-                    else:
-                        break # No more remaining output
-                except (IOError, EOFError):
-                    break # PTY closed during draining
-                except Exception as e:
-                    print(f"Error in _read_output_loop (draining loop): {e}")
-                    break
-        # HACK: This is a workaround for a race condition where the process
-        # exits and isalive() returns False before all output has been
-        # written to the PTY's buffer. The draining loop above helps, but
-        # some tools (like tracepath) can still have trailing output that
-        # gets missed. A small, fixed delay gives the buffer time to
-        # flush before we send the "Process finished" message.
-        await asyncio.sleep(0.1)
+        
+        # The read loop is finished, so we can call the close handler.
         await self._on_close()
