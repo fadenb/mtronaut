@@ -1,4 +1,5 @@
 import asyncio
+import anyio
 import json
 import shlex
 from uuid import uuid4
@@ -115,7 +116,11 @@ async def websocket_endpoint(websocket: WebSocket):
                         nonlocal current_session_id
                         if current_session_id == sid:
                             current_session_id = None
-                        await notify_stopped(sid) # Send status to client
+                        try:
+                            await notify_stopped(sid) # Send status to client
+                        except anyio.ClosedResourceError:
+                            print(f"Session {sid}: Could not send 'stopped' notification, client disconnected.")
+
 
                 # Create and start session
                 rec = session_manager.create_session(
@@ -183,4 +188,3 @@ async def websocket_endpoint(websocket: WebSocket):
         # Cleanup all sessions for this connection
         session_manager.cleanup_connection(connection_id)
         print("WebSocket connection closed.")
-
