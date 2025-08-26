@@ -146,6 +146,12 @@ class TestSessionManagerUnit:
         # Should not raise an exception
         manager.remove("nonexistent_conn", "nonexistent_session")
 
+    def test_remove_nonexistent_connection(self):
+        """Test SessionManager.remove with nonexistent connection (bucket is None)."""
+        manager = SessionManager()
+        # Should not raise an exception - this covers the 'if not bucket: return' branch
+        manager.remove("nonexistent_conn", "nonexistent_session")
+
     def test_remove_last_session_cleanup(self):
         """Test that removing the last session cleans up the connection."""
         manager = SessionManager()
