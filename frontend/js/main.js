@@ -12,6 +12,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let terminalManager;
     let websocketClient;
+    let clientIP = null;
+
+    // Fetch client IP
+    async function fetchClientIP() {
+        try {
+            const response = await fetch('/api/client-ip');
+            const data = await response.json();
+            clientIP = data.client_ip;
+            console.log('Client IP:', clientIP);
+        } catch (error) {
+            console.error('Failed to fetch client IP:', error);
+            // Try to get IP from a different approach as fallback
+            clientIP = window.location.hostname !== 'localhost' ? window.location.hostname : '127.0.0.1';
+        }
+    }
 
     // Initialize WebSocket and Terminal
     function initializeApp() {
@@ -42,15 +57,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Update target input placeholder based on selected tool
     function updateTargetPlaceholder() {
-        const selectedTool = toolSelect.value;
-        const config = window.getToolConfig(selectedTool);
-        if (config && config.defaultTarget) {
-            targetInput.placeholder = `Enter IP or hostname (e.g., ${config.defaultTarget})`;
-            targetInput.value = config.defaultTarget; // Pre-fill with default
-        } else {
-            targetInput.placeholder = 'Enter IP or hostname';
-            targetInput.value = '';
-        }
+        // Always use client IP as the default target
+        const target = clientIP || window.location.hostname || '127.0.0.1';
+        targetInput.placeholder = `Enter IP or hostname (e.g., ${target})`;
+        targetInput.value = target;
     }
 
     function renderToolParameters() {
@@ -132,7 +142,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     startButton.addEventListener('click', () => {
         const tool = toolSelect.value;
-        const target = targetInput.value.trim();
+        let target = targetInput.value.trim();
+
+        // Only use client IP if target is empty (don't override explicit "localhost")
+        if (!target) {
+            target = clientIP || window.location.hostname || '127.0.0.1';
+        }
 
         if (!target) {
             showNotification('Please enter a target IP or hostname.', 'error');
@@ -239,5 +254,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initial setup
     populateToolSelect();
     renderToolParameters();
-    initializeApp();
+    fetchClientIP().then(() => {
+        // Update target placeholder with client IP after fetching
+        updateTargetPlaceholder();
+        initializeApp();
+    });
 });

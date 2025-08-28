@@ -3,13 +3,13 @@ import anyio
 import json
 import shlex
 from uuid import uuid4
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Request
 from fastapi.staticfiles import StaticFiles
 from mtronaut.terminal import TerminalSession
 from mtronaut.tools import build_command, list_tools
 from mtronaut.session import SessionManager
 
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, JSONResponse
 
 app = FastAPI()
 
@@ -20,6 +20,13 @@ app.mount("/static", StaticFiles(directory="frontend"), name="static")
 @app.get("/")
 async def read_root():
     return FileResponse("frontend/index.html")
+
+# Endpoint to get client IP
+@app.get("/api/client-ip")
+async def get_client_ip(request: Request):
+    # Get the client's IP address from the request
+    client_host = request.client.host if request.client else None
+    return JSONResponse({"client_ip": client_host})
 
 async def handle_websocket_messages(websocket: WebSocket, queue: asyncio.Queue):
     """Listens for incoming messages and puts them on the queue."""
@@ -41,6 +48,9 @@ async def websocket_endpoint(websocket: WebSocket):
     connection_id = str(uuid4())
     session_manager = SessionManager()
     current_session_id: str | None = None
+
+    # Get client IP for default target
+    client_ip = websocket.client.host if websocket.client else "localhost"
 
     # Start a task to listen for incoming messages
     message_handler_task = asyncio.create_task(
@@ -67,7 +77,13 @@ async def websocket_endpoint(websocket: WebSocket):
                     continue
 
                 tool = message.get("tool", "ping")
-                target = message.get("target", "localhost")
+                # Handle target based on presence in message
+                if "target" not in message:
+                    # No target key provided at all - use client IP
+                    target = client_ip
+                else:
+                    # Target key was provided, even if empty - use the provided value
+                    target = message["target"]
                 params = message.get("params", {}) # Get parameters
 
                 # Build command via tool configuration with validation

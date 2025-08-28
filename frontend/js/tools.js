@@ -14,7 +14,7 @@ const toolConfigurations = {
     },
     "mtr": {
         name: "mtr",
-        defaultTarget: "8.8.8.8",
+        defaultTarget: "localhost",
         description: "Network diagnostic tool combining traceroute and ping.",
         parameters: [
             { name: "display_asn", param_type: "bool", help_text: "Display AS number (-z)", default: false },
@@ -23,7 +23,7 @@ const toolConfigurations = {
     },
     "tracepath": {
         name: "tracepath",
-        defaultTarget: "google.com",
+        defaultTarget: "localhost",
         description: "Traces path to network host discovering MTU along the way.",
         parameters: [
             { name: "maxHops", param_type: "int", help_text: "Maximum number of hops (TTL)", default: 30 },
@@ -32,7 +32,7 @@ const toolConfigurations = {
     },
     "traceroute": {
         name: "traceroute",
-        defaultTarget: "google.com",
+        defaultTarget: "localhost",
         description: "Prints the route packets take to network host.",
         parameters: [
             { name: "count", param_type: "int", help_text: "Number of probe packets for each hop (1-10)", default: 3 },
