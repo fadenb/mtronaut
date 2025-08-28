@@ -11,6 +11,7 @@ Welcome to Mtronaut! This project delivers a modern, real-time web interface for
 *   **Dynamic Resizing**: Terminal adapts to your browser window size. 📏
 *   **Clipboard Integration**: Easily copy output for analysis or sharing. 📋
 *   **Connection Recovery**: Smart reconnection logic for uninterrupted monitoring. 🔗
+*   **Auto-Target Detection**: Automatically detects and uses your IP address for diagnostics. 🎯
 
 ## 🛠️ Tech Stack
 

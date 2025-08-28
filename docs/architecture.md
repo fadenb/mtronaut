@@ -86,7 +86,7 @@ graph TB
 #### Web Interface (`index.html`)
 - Clean UI with a two-column layout: main controls and terminal on the left, dynamic tool parameters on the right.
 - Dropdown for tool selection (mtr, tracepath, ping, traceroute)
-- Input field for target IP/hostname
+- Input field for target IP/hostname, pre-populated with client's IP address
 - Dynamic parameter input fields based on selected tool
 - Start/Stop buttons for tool execution
 - Terminal container for xterm.js
@@ -102,14 +102,17 @@ graph TB
 - Defines tool-specific configurations, including a `parameters` array for dynamic UI rendering.
 - Parameter validation for target inputs
 - Command construction logic
+- Default target values set to "localhost" for consistency
 
 ### 2. Backend Components
 
 #### FastAPI Application (`main.py`)
 - HTTP server for static file serving
 - WebSocket endpoint for real-time communication
+- REST endpoint for retrieving client IP address
 - CORS configuration for development
 - Error handling and logging
+- Automatic target detection using client IP when no target is provided
 
 #### Session Manager (`backend/mtronaut/session.py`)
 - Track active user sessions
@@ -192,6 +195,14 @@ graph TB
 - This ensures that session cleanup happens properly and the "stopped" message is sent to the client
 - Fixes a race condition where the `on_close` callback wasn't being called when a session was stopped manually
 
+### 6. Auto-Target Detection
+**Challenge**: Make it easier for users to run diagnostics against their own machine without needing to know their IP address
+**Solution**:
+- Added a new REST endpoint `/api/client-ip` to retrieve the client's IP address
+- Modified the WebSocket handler to automatically use the client's IP when no target is provided
+- Updated the frontend to fetch and display the client's IP in the target field by default
+- Maintained backward compatibility with explicit target values
+
 ## API Design
 
 ### WebSocket Protocol
@@ -206,7 +217,7 @@ Messages sent from the client to the server are JSON objects with an `action` ke
 - **Action**: Initiates the execution of a network tool.
 - **Payload**:
   - `tool` (string): The name of the tool to run (e.g., "mtr", "ping").
-  - `target` (string): The hostname or IP address to target.
+  - `target` (string): The hostname or IP address to target. If not provided, the client's IP address will be used automatically.
   - `term_cols` (integer): The number of columns in the client's terminal.
   - `term_rows` (integer): The number of rows in the client's terminal.
   - `params` (object, optional): A dictionary of tool-specific parameters. Keys are parameter names, values are their chosen settings.
