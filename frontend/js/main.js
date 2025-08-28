@@ -135,13 +135,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const target = targetInput.value.trim();
 
         if (!target) {
-            alert('Please enter a target IP or hostname.');
+            showNotification('Please enter a target IP or hostname.', 'error');
             return;
         }
 
         if (!isValidTarget(target)) {
             targetInput.style.border = '1px solid red';
-            alert('Invalid target. Please enter a valid IP address or hostname.');
+            showNotification('Invalid target. Please enter a valid IP address or hostname.', 'error');
             return;
         } else {
             targetInput.style.border = ''; // Reset border

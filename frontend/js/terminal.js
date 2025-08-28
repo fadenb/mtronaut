@@ -90,12 +90,15 @@ class TerminalManager {
         textarea.value = lines.join('\n');
         textarea.select();
 
-        try {
+                try {
             const successful = document.execCommand('copy');
-            const msg = successful ? 'Copied to clipboard!' : 'Failed to copy!';
-            alert(msg); // Simple feedback
+            if (successful) {
+                showNotification('Copied to clipboard!', 'success');
+            } else {
+                showNotification('Failed to copy!', 'error');
+            }
         } catch (err) {
-            alert('Error copying to clipboard: ' + err);
+            showNotification('Error copying to clipboard: ' + err, 'error');
         } finally {
             document.body.removeChild(textarea);
         }
