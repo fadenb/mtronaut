@@ -1,6 +1,6 @@
 # Test Suite Warnings Policy
 
-This document explains the rationale behind the warning filters configured in [pytest.ini](pytest.ini:1). The goal is to keep test output clean and actionable while ensuring we do not hide problems that could impact reliability.
+This document explains the rationale behind the warning filters configured in [pytest.ini](../pytest.ini). The goal is to keep test output clean and actionable while ensuring we do not hide problems that could impact reliability.
 
 We currently apply two targeted filters:
 
@@ -26,7 +26,7 @@ We currently apply two targeted filters:
 
 Reproducing the PTY warning locally
 - Run the WebSocket tests with the PTY terminal session enabled under Starlette’s TestClient. The warning appears because the PTY spawn happens after the ASGI app thread has started.
-- With our targeted filter in [pytest.ini](pytest.ini:1), tests pass cleanly without suppressing unrelated warnings.
+- With our targeted filter in [pytest.ini](../pytest.ini), tests pass cleanly without suppressing unrelated warnings.
 
 Future work to remove the PTY filter entirely
 - Move PTY work into a dedicated worker subprocess created via multiprocessing with the “spawn” start method and communicate over pipes/queues. This ensures PTY creation happens in a single-threaded child process.

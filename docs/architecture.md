@@ -367,26 +367,38 @@ pip install fastapi uvicorn websockets
 ### Directory Structure
 ```
 mtronaut/
-├── docs/
-│   └── architecture.md
+├── .gitignore
+├── poetry.lock
+├── pyproject.toml
+├── pytest.ini
+├── README.md
 ├── backend/
 │   └── mtronaut/
+│       ├── __init__.py
 │       ├── main.py
 │       ├── session.py
-│       ├── tools.py
-│       └── terminal.py
+│       ├── terminal.py
+│       └── tools.py
+├── docs/
+│   ├── agents.md
+│   ├── architecture.md
+│   ├── ... (and other docs)
 ├── frontend/
 │   ├── index.html
-│   ├── js/
-│   │   ├── terminal.js
-│   │   ├── tools.js
-│   │   └── websocket.js
 │   ├── css/
+│   │   ├── notifications.css
+│   │   ├── status.css
 │   │   └── styles.css
-│   └── lib/
-│       └── xterm.js
-├── pyproject.toml
-└── README.md
+│   └── js/
+│       ├── main.js
+│       ├── notifications.js
+│       ├── terminal.js
+│       ├── tools.js
+│       └── websocket.js
+├── tests/
+│   ├── test_api.py
+│   ├── ... (and other tests)
+└── .venv/
 ```
 
 ## Performance Considerations

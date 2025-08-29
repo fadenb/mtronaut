@@ -27,10 +27,10 @@ type(scope): brief description
 
 ### Technical Note: Creating Multi-line Commits Correctly
 
-When using `git commit` with the `-m` flag for multi-line commit messages, use a single `-m` flag with literal newlines in the string:
+When using `git commit` for multi-line messages, provide the subject line with the first `-m` flag and the entire body as a single string in a second `-m` flag. This prevents unwanted blank lines between bullet points.
 
 ```bash
-# CORRECT: Single -m flag with newlines
+# CORRECT: Use one -m for the subject and one for the entire body
 git commit -m "docs: add comprehensive contributing guide" -m "- Add detailed contributing guide with development workflow
 - Document coding standards, testing practices, and commit conventions
 - Standardize documentation file naming with hyphens

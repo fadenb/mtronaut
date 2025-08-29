@@ -8,7 +8,7 @@ Before you begin, ensure you have the following installed on your system:
 
 *   **Python 3.9+**: Mtronaut's backend is built with Python.
 *   **Poetry**: Used for Python dependency management. Install it via `pip install poetry` or refer to the [Poetry documentation](https://python-poetry.org/docs/#installation).
-*   **System Network Tools**: Ensure `mtr`, `ping`, and `traceroute` are installed and available in your system's PATH. These are typically pre-installed on most Linux distributions.
+*   **System Network Tools**: Ensure `mtr`, `ping`, `traceroute`, and `tracepath` are installed and available in your system's PATH. These are typically pre-installed on most Linux distributions.
 
 ## Setup Instructions
 
