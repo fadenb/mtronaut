@@ -30,27 +30,9 @@ Welcome to Mtronaut! This project delivers a modern, real-time web interface for
 
 ## 👨‍💻 For Developers
 
-### Project Structure
+For detailed information about contributing to Mtronaut, please see our [Contributing Guide](docs/contributing.md).
 
-```
-mtronaut/
-├── backend/              # Backend source code
-│   └── mtronaut/         # Main Python package
-│       ├── main.py       # FastAPI application entry point
-│       ├── session.py    # Session management
-│       ├── terminal.py   # Terminal handling with PTY
-│       └── tools.py      # Network tool configurations
-├── frontend/             # Frontend source code
-│   ├── index.html        # Main HTML file
-│   ├── css/              # Stylesheets
-│   └── js/               # JavaScript files
-├── tests/                # Test suite
-├── docs/                 # Documentation
-├── pyproject.toml        # Project configuration and dependencies
-└── README.md             # This file
-```
-
-### Development Environment Setup
+### Quick Setup
 
 1. **Prerequisites:**
    - Python 3.9 or higher
@@ -61,56 +43,22 @@ mtronaut/
    poetry install
    ```
 
-3. **Activate the virtual environment:**
-   ```bash
-   poetry shell
-   ```
-
-4. **Run the development server:**
+3. **Run the development server:**
    ```bash
    poetry run uvicorn backend.mtronaut.main:app --reload
    ```
 
 ### Running Tests
 
-Mtronaut uses pytest for testing with several plugins for enhanced functionality:
-
 ```bash
 # Run all tests
 poetry run pytest
 
-# Run tests in parallel for faster execution
-poetry run pytest -n auto
-
 # Run tests with coverage report
 poetry run pytest --cov
-
-# Run specific test file
-poetry run pytest tests/test_api.py
 ```
 
-The test suite includes unit tests, integration tests, and edge case testing to ensure the reliability of the application.
-
-### Code Quality
-
-- The project uses pytest with several plugins for testing:
-  - `pytest-asyncio` for async tests
-  - `pytest-cov` for coverage reporting
-  - `pytest-xdist` for parallel test execution
-  - `pytest-timeout` to prevent hanging tests
-
-- Tests are configured to run with a timeout of 11 seconds to prevent hanging
-- Specific warnings are filtered out in `pytest.ini` for known non-actionable issues
-
-### Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a pull request
-
-Please ensure your code follows the existing style and includes appropriate tests.
+For more detailed information about the project structure, development workflow, coding standards, and commit message conventions, please refer to our [Contributing Guide](docs/contributing.md).
 
 ## 💡 Why Mtronaut?
 
