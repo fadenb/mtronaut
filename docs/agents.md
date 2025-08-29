@@ -25,6 +25,32 @@ type(scope): brief description
 5. **Subject line under 50 characters** - Keep the main description concise
 6. **Body lines under 72 characters** - Wrap longer text appropriately
 
+### Technical Note: Creating Multi-line Commits Correctly
+
+When using `git commit` with the `-m` flag for multi-line commit messages, use a single `-m` flag with literal newlines in the string:
+
+```bash
+# CORRECT: Single -m flag with newlines
+git commit -m "docs: add comprehensive contributing guide" -m "- Add detailed contributing guide with development workflow
+- Document coding standards, testing practices, and commit conventions
+- Standardize documentation file naming with hyphens
+- Update README to reference contributing guide in docs folder"
+```
+
+Avoid using multiple `-m` flags for bullet points as this creates unwanted empty lines:
+
+```bash
+# INCORRECT: Multiple -m flags create empty lines between bullet points
+git commit -m "docs: add comprehensive contributing guide" -m "- Add detailed contributing guide" -m "- Document coding standards"
+```
+
+For longer commit messages, you can also use `git commit` without `-m` flags and write the message in the default text editor:
+
+```bash
+# Alternative: Use editor for complex commit messages
+git commit
+```
+
 ### Examples
 
 #### Correct Format:
