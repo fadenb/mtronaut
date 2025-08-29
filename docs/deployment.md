@@ -21,12 +21,11 @@ git clone https://github.com/fadenb/mtronaut.git
 cd mtronaut
 ```
 
-### 2. Backend Setup (Python)
+### 2. Install Dependencies
 
-Navigate to the `backend` directory and install Python dependencies using Poetry:
+Install Python dependencies using Poetry from the project root directory:
 
 ```bash
-cd backend
 poetry install
 ```
 
@@ -35,9 +34,9 @@ poetry install
 The FastAPI backend serves both the API/WebSocket and the static frontend files.
 
 1.  **Start the Backend (API, WebSocket, and Static File Server)**
-    From the `backend` directory:
+    From the project root directory:
     ```bash
-    poetry run uvicorn mtronaut.main:app --reload --port 8000
+    poetry run uvicorn backend.mtronaut.main:app --reload --port 8000
     ```
     This will start the FastAPI server, typically accessible at `http://127.0.0.1:8000`. The `--reload` flag is useful for development as it automatically reloads the server on code changes.
 

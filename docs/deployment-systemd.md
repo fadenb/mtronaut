@@ -92,7 +92,7 @@ RestartSec=10
 WantedBy=multi-user.target
 ```
 
-**Important:** Replace `/path/to/your/poetry/executable` with `/usr/bin/poetry`. This is the absolute path to the Poetry executable after following the installation steps.
+
 
 ## 7. Reload Systemd and Enable the Service
 

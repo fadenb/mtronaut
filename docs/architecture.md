@@ -330,29 +330,7 @@ traceroute <target>
     - `icmp` (`-I`): Use ICMP ECHO for probes (default).
     - `no_dns_resolution` (`-n`): Do not resolve hostnames to IP addresses.
 
-### Tracepath
-```bash
-tracepath <target>
-```
-- Simple text output
-- Shows path MTU discovery
-- Completes after reaching target
 
-### Ping
-```bash
-ping -c 10 <target>
-```
-- Limited count for short sessions
-- Real-time packet statistics
-- ANSI color support for status
-
-### Traceroute
-```bash
-traceroute <target>
-```
-- Hop-by-hop route discovery
-- Text-based output
-- Completes after reaching target
 
 ## Security Considerations
 
