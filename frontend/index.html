@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="/static/css/styles.css">
     <link rel="stylesheet" href="https://unpkg.com/xterm@5.3.0/css/xterm.css">
     <link rel="stylesheet" href="/static/css/notifications.css">
+    <link rel="stylesheet" href="/static/css/status.css">
 </head>
 <body>
     <div id="app">
@@ -22,6 +23,10 @@
             <button id="start-button">Start</button>
             <button id="stop-button" disabled>Stop</button>
             <button id="copy-button" disabled>Copy Output</button>
+        </div>
+        <div id="status-bar">
+            <div id="connection-status">Disconnected</div>
+            <div id="tool-status">No active tool</div>
         </div>
         <div id="terminal-container"></div>
         <div id="settings-panel">

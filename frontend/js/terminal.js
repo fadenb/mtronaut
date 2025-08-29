@@ -90,7 +90,7 @@ class TerminalManager {
         textarea.value = lines.join('\n');
         textarea.select();
 
-                try {
+        try {
             const successful = document.execCommand('copy');
             if (successful) {
                 showNotification('Copied to clipboard!', 'success');

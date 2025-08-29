@@ -1,0 +1,33 @@
+#status-bar {
+    display: flex;
+    justify-content: space-between;
+    background-color: #2c323c;
+    padding: 10px 15px;
+    border-radius: 5px;
+    margin-bottom: 15px;
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    font-size: 0.9em;
+}
+
+#connection-status, #tool-status {
+    padding: 5px 10px;
+    border-radius: 3px;
+}
+
+#connection-status {
+    background-color: #e06c75;
+    color: white;
+}
+
+#connection-status.connected {
+    background-color: #98c379;
+}
+
+#tool-status {
+    background-color: #61afef;
+    color: white;
+}
+
+#tool-status.running {
+    background-color: #e5c07b;
+}

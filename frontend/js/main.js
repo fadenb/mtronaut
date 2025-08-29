@@ -9,10 +9,26 @@ document.addEventListener('DOMContentLoaded', () => {
     const copyButton = document.getElementById('copy-button');
     const terminalContainer = document.getElementById('terminal-container');
     const toolParametersDiv = document.getElementById('tool-parameters');
+    const connectionStatus = document.getElementById('connection-status');
+    const toolStatus = document.getElementById('tool-status');
 
     let terminalManager;
     let websocketClient;
     let clientIP = null;
+    let currentTool = null;
+    let currentTarget = null;
+
+    // Update connection status display
+    function updateConnectionStatus(status, connected) {
+        connectionStatus.textContent = status;
+        connectionStatus.className = connected ? 'connected' : '';
+    }
+
+    // Update tool status display
+    function updateToolStatus(status, running) {
+        toolStatus.textContent = status;
+        toolStatus.className = running ? 'running' : '';
+    }
 
     // Fetch client IP
     async function fetchClientIP() {
@@ -185,6 +201,11 @@ document.addEventListener('DOMContentLoaded', () => {
         startButton.disabled = true;
         stopButton.disabled = false;
         copyButton.disabled = false;
+        
+        // Update current tool/target tracking
+        currentTool = tool;
+        currentTarget = target;
+        updateToolStatus(`Running ${tool} ${target}`, true);
 
         websocketClient.sendJson({
             action: 'start_tool',
@@ -200,6 +221,7 @@ document.addEventListener('DOMContentLoaded', () => {
         websocketClient.sendJson({ action: 'stop_tool' });
         startButton.disabled = false;
         stopButton.disabled = true;
+        updateToolStatus('Tool stopped', false);
     });
 
     copyButton.addEventListener('click', () => {
@@ -213,12 +235,15 @@ document.addEventListener('DOMContentLoaded', () => {
             if (message.status === 'stopped') {
                 startButton.disabled = false;
                 stopButton.disabled = true;
+                updateToolStatus('Tool finished', false);
             } else if (message.status === 'error') {
                 startButton.disabled = false;
                 stopButton.disabled = true;
                 copyButton.disabled = true;
+                updateToolStatus('Tool error', false);
+            } else if (message.status === 'running') {
+                updateToolStatus(`Running ${currentTool} ${currentTarget}`, true);
             }
-            terminalManager.write(`\r\n[Server Status]: ${message.message}\r\n`);
         } else {
             terminalManager.write(data);
         }
@@ -227,28 +252,27 @@ document.addEventListener('DOMContentLoaded', () => {
     function handleWebSocketOpen() {
         console.log('WebSocket connection established.');
         startButton.disabled = false;
+        updateConnectionStatus('Connected', true);
     }
 
     function handleWebSocketClose(event, permanent = false) {
         console.log('WebSocket connection closed.', event);
         startButton.disabled = false;
         stopButton.disabled = true;
-        if (permanent) {
-            terminalManager.write('\r\n[Connection Closed Permanently. Please refresh to reconnect.]\r\n');
-        } else {
-            terminalManager.write('\r\n[Connection Closed. Attempting to reconnect...]\r\n');
-        }
+        updateConnectionStatus('Disconnected', false);
+        updateToolStatus('No active tool', false);
     }
 
     function handleWebSocketError(event) {
         console.error('WebSocket error occurred.', event);
         startButton.disabled = false;
         stopButton.disabled = true;
-        terminalManager.write('\r\n[Connection Error. Attempting to reconnect...]\r\n');
+        updateConnectionStatus('Connection Error', false);
+        updateToolStatus('No active tool', false);
     }
 
     function handleWebSocketReconnectAttempt(attempt, maxAttempts, delay) {
-        terminalManager.write(`\r\n[Reconnecting... Attempt ${attempt}/${maxAttempts}. Next attempt in ${delay / 1000}s]\r\n`);
+        updateToolStatus(`Reconnecting... Attempt ${attempt}/${maxAttempts}`, true);
     }
 
     // Initial setup
