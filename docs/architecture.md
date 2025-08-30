@@ -115,10 +115,10 @@ graph TB
 - Automatic target detection using client IP when no target is provided
 
 #### Session Manager (`backend/mtronaut/session.py`)
-- Track active user sessions
-- Manage WebSocket connections
-- Handle session cleanup on disconnect
-- Process lifecycle management
+- Manages multiple tool sessions per WebSocket connection, each identified by a unique `session_id`.
+- Although the backend supports multiple sessions, the UI currently enforces a single active session at a time for simplicity.
+- Handles the creation, tracking, and cleanup of `TerminalSession` instances.
+- Ensures that all processes associated with a WebSocket connection are terminated upon disconnect.
 
 #### Tool Runner (`backend/mtronaut/tools.py`)
 - PTY-based process spawning
@@ -217,7 +217,7 @@ Messages sent from the client to the server are JSON objects with an `action` ke
 - **Action**: Initiates the execution of a network tool.
 - **Payload**:
   - `tool` (string): The name of the tool to run (e.g., "mtr", "ping").
-  - `target` (string): The hostname or IP address to target. If not provided, the client's IP address will be used automatically.
+  - `target` (string): The hostname or IP address to target. If the `target` key is omitted, the client's IP address is used. If the key is present but the value is an empty string, it will be treated as an empty target.
   - `term_cols` (integer): The number of columns in the client's terminal.
   - `term_rows` (integer): The number of rows in the client's terminal.
   - `params` (object, optional): A dictionary of tool-specific parameters. Keys are parameter names, values are their chosen settings.
@@ -238,11 +238,13 @@ Messages sent from the client to the server are JSON objects with an `action` ke
 
 ##### `stop_tool`
 - **Action**: Requests to terminate a running tool.
-- **Payload**: None. The server will terminate the tool associated with the WebSocket connection.
+- **Payload**:
+  - `session_id` (string, optional): The ID of the session to stop. If not provided, the most recently started session on the connection is stopped.
 - **Example**:
   ```json
   {
-    "action": "stop_tool"
+    "action": "stop_tool",
+    "session_id": "a1b2c3d4-e5f6-7890-1234-567890abcdef"
   }
   ```
   
@@ -251,12 +253,14 @@ Messages sent from the client to the server are JSON objects with an `action` ke
 - **Payload**:
   - `term_cols` (integer): The new number of columns.
   - `term_rows` (integer): The new number of rows.
+  - `session_id` (string, optional): The ID of the session to resize. If not provided, the most recently started session is resized.
 - **Example**:
   ```json
   {
     "action": "resize_terminal",
     "term_cols": 120,
-    "term_rows": 40
+    "term_rows": 40,
+    "session_id": "a1b2c3d4-e5f6-7890-1234-567890abcdef"
   }
   ```
 

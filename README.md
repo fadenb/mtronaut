@@ -28,6 +28,14 @@ Welcome to Mtronaut! This project delivers a modern, real-time web interface for
     `poetry run uvicorn backend.mtronaut.main:app --reload`
 3.  **Access Frontend:** Open `http://localhost:8000` in your browser.
 
+## 📚 Documentation
+
+For a deeper dive into the project's architecture, deployment, and other details, please refer to the following documents:
+
+*   **[Architecture](docs/architecture.md):** A detailed overview of the system architecture, components, and data flow.
+*   **[Deployment Guide](docs/deployment.md):** Instructions for setting up and running the Mtronaut application.
+*   **[Systemd Deployment](docs.deployment-systemd.md):** A guide for deploying Mtronaut as a systemd service on Ubuntu.
+
 ## 👨‍💻 For Developers
 
 For detailed information about contributing to Mtronaut, please see our [Contributing Guide](docs/contributing.md).
