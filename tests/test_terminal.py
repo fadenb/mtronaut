@@ -236,3 +236,82 @@ class TestTerminalSession:
             session.stop()
             await asyncio.sleep(0)
             mock_close_callback.assert_awaited_once()
+
+    @pytest.mark.asyncio
+    @patch('ptyprocess.PtyProcess.spawn')
+    @patch('asyncio.to_thread')
+    async def test_read_output_loop_idle_process_and_exit(self, mock_to_thread, mock_spawn, mock_output_callback, mock_close_callback):
+        """Test the output reading loop with an idle process that then exits."""
+        mock_process = MagicMock()
+        # isalive returns True for the first two checks, then False
+        mock_process.isalive.side_effect = [True, True, False]
+        mock_spawn.return_value = mock_process
+
+        # Mock the read operation to return no data, then stop
+        async def read_side_effect(*args, **kwargs):
+            if read_side_effect.call_count == 1:
+                read_side_effect.call_count += 1
+                return b""  # No output
+            # On the second call, the process is no longer alive
+            raise EOFError
+        read_side_effect.call_count = 1
+        mock_to_thread.side_effect = read_side_effect
+
+        session = TerminalSession(
+            cmd=["sleep", "0.1"],
+            on_output=mock_output_callback,
+            on_close=mock_close_callback,
+            loop=asyncio.get_running_loop()
+        )
+
+        session.start()
+        read_task = session._read_task
+
+        await read_task
+
+        mock_output_callback.assert_not_called()
+        mock_close_callback.assert_awaited_once()
+
+    @pytest.mark.asyncio
+    async def test_read_output_loop_immediate_exit(self, mock_output_callback, mock_close_callback):
+        """Test the output reading loop with a process that exits immediately."""
+        session = TerminalSession(
+            cmd=["true"],
+            on_output=mock_output_callback,
+            on_close=mock_close_callback,
+            loop=asyncio.get_running_loop()
+        )
+
+        session.start()
+        read_task = session._read_task
+
+        await read_task
+
+        mock_output_callback.assert_not_called()
+        mock_close_callback.assert_awaited_once()
+
+    @pytest.mark.asyncio
+    @patch('ptyprocess.PtyProcess.spawn')
+    @patch('asyncio.to_thread')
+    async def test_read_output_loop_generic_exception(self, mock_to_thread, mock_spawn, mock_output_callback, mock_close_callback):
+        """Test the output reading loop with a generic exception."""
+        mock_process = MagicMock()
+        mock_spawn.return_value = mock_process
+
+        # Mock the read operation to raise an exception
+        mock_to_thread.side_effect = Exception("test exception")
+
+        session = TerminalSession(
+            cmd=["ping", "localhost"],
+            on_output=mock_output_callback,
+            on_close=mock_close_callback,
+            loop=asyncio.get_running_loop()
+        )
+
+        session.start()
+        read_task = session._read_task
+
+        await read_task
+
+        mock_output_callback.assert_not_called()
+        mock_close_callback.assert_awaited_once()

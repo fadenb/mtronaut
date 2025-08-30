@@ -1,4 +1,5 @@
 import pytest
+from unittest.mock import patch
 
 from mtronaut.tools import (
     get_tool_config,
@@ -99,3 +100,19 @@ def test_boolean_parameter_coverage():
     config_false = ToolConfig(name="test_tool", base_cmd=["test"], parameters=[bool_param_false])
     cmd_false = config_false.command("8.8.8.8", {"no_flag": False})
     assert cmd_false == ["test", "8.8.8.8"]
+
+def test_invalid_parameter_value():
+    """Test that a ValueError is raised for an invalid parameter value."""
+    with pytest.raises(ValueError, match="Invalid value for parameter 'count'"):
+        build_command("ping", "8.8.8.8", {"count": 9999})
+
+def test_missing_required_parameter():
+    """Test that a ValueError is raised for a missing required parameter."""
+    # Create a dummy tool with a required parameter
+    required_param = ToolParameter(name="required_param", param_type=str, help_text="", required=True)
+    config = ToolConfig(name="dummy_tool", base_cmd=["dummy"], parameters=[required_param])
+    
+    # Patch the tool registry to include the dummy tool
+    with patch.dict('mtronaut.tools._TOOL_REGISTRY', {'dummy_tool': config}):
+        with pytest.raises(ValueError, match="Missing required parameter: required_param"):
+            build_command("dummy_tool", "8.8.8.8", {})
